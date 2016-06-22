@@ -8,25 +8,36 @@ var passport = require('passport')
 var verifyHandler = function(token, tokenSecret, profile, done) {
   process.nextTick(function() {
 
-    console.log('tokenSecret : '+ token );
-    console.log('tokenSecret : '+ tokenSecret );
-    console.log( profile );
+    var google = require('googleapis');
 
-    var request = require("request")
+    var people = google.people('v1');
+    var OAuth2 = google.auth.OAuth2;
 
-    var url = "https://people.googleapis.com/v1/people/me/connections?pageSize=100&" +
-        "key=AIzaSyBHvLgQTJ9LvUL_3cnuBgyIwOxTRRZ4viA";
-        console.log('Url' + url );
-    request({
-        url: url,
-        json: true
-    }, function (error, response, body) {
+    var oauth2Client = new OAuth2(
+        "110981261754-uqvjjs328a5kbb8mvkqfoqas85el14pm.apps.googleusercontent.com",
+        "0dyLlg8EsMKpNfw1TM5mT4KT",
+        "http://localhost:1337/auth/google/callback");
 
-        if (!error && response.statusCode === 200) {
-          console.log("contacts");
-            console.log(body) // Print the json response
+    oauth2Client.setCredentials({access_token:token});
+
+    people.people.connections.list({ resourceName: 'people/me', auth: oauth2Client }, function(err, response) {
+        
+        var list = [];
+        for( var i = 0; i < response.connections.length; i++ ){
+            Contact.findOne({id: response.connections[i].metadata.sources[0].id }, function(err, contact){
+                if(!contact){
+                  var data = {
+                    id:response.connections[i].metadata.sources[0].id,
+                    displayName:connections[i].names[0].displayName
+                  }
+                  list.push(data);
+                  Contact.create( data )
+                }
+            });
         }
-    })
+        console.log( list); 
+
+    });
 
 
     User.findOne({uid: profile.id}, function(err, user) {

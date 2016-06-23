@@ -8,40 +8,59 @@
 module.exports = {
 
 
-    index: function (req, res) {
+    /**
+     * Get All messages.
+     */
+    getAllMessages: function (req, res) {
+            Message.findAll()
 
-//    var request = require("request")
+            .spread(function ( messages ) {
+                res.json( messages );
+            })
 
-//     var url = "https://people.googleapis.com/v1/people/me/connections?pageSize=100&" +
-//         "key=AIzaSyBHvLgQTJ9LvUL_3cnuBgyIwOxTRRZ4viA";
-//         console.log('Url' + url );
+            .fail(function (err) {
+                console.log(err);
+                res.send(404);
+            })
+    },  
 
-//         var request = require('request');
-//         request(url, function (error, response, body) {
-//             console.log( body );
-//         })
+    /**
+     * Get message by ID.
+     */
+    getOneMssage: function ( req, res ) {
+        
+        if( undefined === req.param('id') ){
+            return res.badRequest(' There was an error occured, no id provided.');
+        }
+        
+        Message.findOne( req.param('id'))
+        .spread( function ( message ) {
 
-    var google = require('googleapis');
-    var plus = google.plus('v1');
-    var OAuth2 = google.auth.OAuth2;
-    var oauth2Client = new OAuth2(
-        "110981261754-uqvjjs328a5kbb8mvkqfoqas85el14pm.apps.googleusercontent.com",
-        "0dyLlg8EsMKpNfw1TM5mT4KT",
-        "http://localhost:1337/auth/google/callback");
+            res.json( message )
 
-    // Retrieve tokens via token exchange explained above or set them:
-    oauth2Client.getToken(code, function(err, tokens) {
-    // Now tokens contains an access_token and an optional refresh_token. Save them.
-    if(!err) {
-        oauth2Client.setCredentials(tokens);
-    }
-    });
+        })
+        .fail(function ( err ) {
+            res.send(404);
+        })
 
-    console.log(oauth2Client);
-    plus.people.get({ userId: 'me', auth: oauth2Client }, function(err, response) {
-        console.log(err);
-    });
+    },
 
+    /**
+     * Create message.
+     */
+    createMessage: function ( req, res ) {
+
+        var uid = req.param('uid');
+        var message = req.param('message');
+
+        var data = {
+            title: message,
+            user: uid
+        }
+
+        Message.create( data , function (err, message ) {
+            Message.publishCreate( message );
+        })
     }
 	
 };

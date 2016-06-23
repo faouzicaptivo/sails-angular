@@ -16,6 +16,40 @@ module.exports = {
     email: 'STRING',
     firstname: 'STRING',
     lastname: 'STRING',
-    token: "STRING"
+    token: "STRING",
+
+    messages_count:{
+      type: 'number',
+    },
+    messages:{
+      collection: 'message',
+      via: 'user'
+    }
+  },
+
+
+//Repository
+
+  /**
+   * Get all users.
+   */
+  findAll: function () {
+    return User.find().
+    then(function (users) {
+      return [users];
+    })    
+  },
+
+  /**
+   * Get users by uid.
+   */
+  findOne: function ( id ) {
+    return User.findOne( id )
+    .then(function ( user ) {
+      return [user];
+    })
+
   }
+
+
 };

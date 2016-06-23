@@ -1,8 +1,4 @@
-var passport = require('passport')
-    , GitHubStrategy = require('passport-github').Strategy
-    , FacebookStrategy = require('passport-facebook').Strategy
-    , GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
-    , TwitterStrategy = require('passport-twitter').Strategy;
+var passport = require('passport'), GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 
 
 var verifyHandler = function(token, tokenSecret, profile, done) {
